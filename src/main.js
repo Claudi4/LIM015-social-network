@@ -7,23 +7,6 @@ import {validarRegistro, camposLlenos, campos} from './validaciones.js';
 //ENROUTAMIENTO codigo bonito
 const secciones = document.querySelector('#secciones');
 
-//EVITANDO 404 - funcion cambioRuta
-const cambioRuta = () => {
-    console.log(window.location.pathname);
-    if(window.location.pathname === '/login'){
-      console.log('mostrar login');
-      secciones.innerHTML = createLogin;
-    } else if (window.location.pathname === '/signup'){
-      console.log('mostrar registro');
-      secciones.innerHTML = createSignup;
-    } else if (window.location.pathname === '/muro'){
-      console.log('mostrar muro');
-      secciones.innerHTML = createMuro;
-      showAuthUsers();
-      cerrarSesion();
-    }
-}
-
 //RUTA SIN #
 const changeRoute = (hash) => {
   if (hash === '#login'){
@@ -36,16 +19,33 @@ const changeRoute = (hash) => {
   
 };
 
-firebase.auth().onAuthStateChanged((user) => {
-  if (user) {
-    changeRoute(window.location.hash);
-    cambioRuta();
-  } else {
-    window.location.hash = 'login';
-    changeRoute(window.location.hash);
-    cambioRuta();
-  }
-});
+//EVITANDO 404 - funcion cambioRuta
+const cambioRuta = () => {
+    console.log(window.location.pathname);
+    if(window.location.pathname === '/login'){
+      console.log('mostrar login');
+      secciones.innerHTML = createLogin;
+    } else if (window.location.pathname === '/signup'){
+      console.log('mostrar registro');
+      secciones.innerHTML = createSignup;
+    } else if (window.location.pathname === '/muro'){
+      console.log('mostrar muro');
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          secciones.innerHTML = createMuro;
+          showAuthUsers();
+          cerrarSesion();
+        } else {
+          window.history.pushState( {} , 'muro', '/login' );
+          cambioRuta();
+        }
+      });
+      
+    }
+}
+
+
+
 
 window.addEventListener('hashchange', () => {
     if (window.location.hash === '#signup') {
@@ -56,6 +56,12 @@ window.addEventListener('hashchange', () => {
     const signupForm = document.querySelector("#signup-form");
     const botonForm = document.querySelector("#submit-button");
     validarRegistro(campos);
+
+    const cancelSignup = document.querySelector('#cancel-button');
+    cancelSignup.addEventListener('click', () => {
+      window.history.pushState( {} , 'signup', '/login' );
+        cambioRuta();
+    })
 
     botonForm.addEventListener("click", (e) => {
       e.preventDefault();
@@ -87,25 +93,33 @@ window.addEventListener('hashchange', () => {
 
 
 //FLECHAS DE ATRAS Y ADELANTE ------> NO FUNCIONA!
-window.addEventListener('popstate', (event) => {
+/*window.addEventListener('popstate', (event) => {
   console.log("location: " + document.location + ", state: " + JSON.stringify(event.state));
   
   console.log('POPOPOPOPOP');
-  if(window.location.pathname === '/'){
+  if(window.location.pathname === '/login'){
     secciones.innerHTML = createLogin;
     console.log(' LOGIN')
   } else if (window.location.pathname === '/signup'){
     secciones.innerHTML = createSignup;
     console.log(' REGISTRO')
   }  
-});
+});*/
 
 
 //Login con email y contraseña:
 
 const loginForm = document.querySelector("#login-form");
 const loginButon = document.querySelector('#login-button');
-
+const showPassword = document.querySelector('#show-password');
+showPassword.addEventListener('change', () => {
+  const password1 = document.querySelector('#login-password');
+    if ( password1.type === "text" ) {
+        password1.type = "password"
+    } else {
+        password1.type = "text"
+    }
+  });
 loginButon.addEventListener("click", (e) => {
   e.preventDefault();
   console.log("logueandote");

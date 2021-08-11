@@ -70,6 +70,7 @@ export const createMuro = `
 
 
       // icono para mostrar contraseña
+    /*export const mostrarContraseña = () => {
       const showPassword = document.querySelector('#show-password');
       showPassword.addEventListener('change', () => {
         const password1 = document.querySelector('#login-password');
@@ -79,3 +80,5 @@ export const createMuro = `
               password1.type = "text"
           }
       });
+    }*/
+      
